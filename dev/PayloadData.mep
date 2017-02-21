@@ -1,0 +1,4 @@
+package Acme\Event;
+
+interface PayloadData {
+}

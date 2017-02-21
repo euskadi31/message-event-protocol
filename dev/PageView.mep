@@ -1,0 +1,8 @@
+package Acme\Event;
+
+import Acme\Event\PayloadData;
+
+message PageView implements PayloadData {
+    required String url;
+}
+

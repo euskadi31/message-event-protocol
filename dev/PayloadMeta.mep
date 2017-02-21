@@ -1,0 +1,9 @@
+package Acme\Event;
+
+message PayloadMeta {
+    required UUID trackerId;
+    required UUID clientId;
+    required String type;
+    required String ip;
+    required DateTime createAt;
+}

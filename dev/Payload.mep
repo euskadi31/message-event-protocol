@@ -1,0 +1,9 @@
+package Acme\Event;
+
+import PayloadMeta;
+import PayloadData;
+
+message Payload {
+    required PayloadMeta meta;
+    required PayloadData data;
+}
