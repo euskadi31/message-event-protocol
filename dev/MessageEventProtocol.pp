@@ -6,7 +6,10 @@
 %skip   import_ns:space                 \s+
 %skip   message_ns:space                \s+
 %skip   interface_ns:space              \s+
+%skip   implements_ns:space             \s+
 
+%token  implements_t                    implements -> implements_ns
+%token  implements_ns:implements_name_t [A-Z][a-zA-Z0-9]+ -> default
 %token  package_t                       package -> package_ns
 %token  package_ns:package_name_t       [A-Z][a-zA-Z0-9\\]+ -> default
 %token  import_t                        import -> import_ns
@@ -37,8 +40,11 @@
 #import:
     ::import_t:: <import_name_t> ::semicolon_t::
 
+#implements:
+    ::implements_t:: <implements_name_t>
+
 #message:
-    ::message_t:: <message_name_t> ::brace_open_t:: ( property() ) * ::brace_close_t::
+    ::message_t:: <message_name_t> ( implements() ) ? ::brace_open_t:: ( property() ) * ::brace_close_t::
 
 #interface:
     ::interface_t:: <interface_name_t> ::brace_open_t:: ( property() ) * ::brace_close_t::

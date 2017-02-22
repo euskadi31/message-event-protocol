@@ -15,5 +15,17 @@ namespace Euskadi31\MessageEventProtocol\Definition;
 
 class MessageDefinition extends ClassDefinition
 {
+    protected $implements;
 
+    public function setImplementsName($name)
+    {
+        $this->implements = $name;
+
+        return $this;
+    }
+
+    public function getImplementsName()
+    {
+        return $this->implements;
+    }
 }

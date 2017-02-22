@@ -59,6 +59,7 @@ class Php5Target implements TargetInterface
 
         if (!empty($imports)) {
             $content .= implode(PHP_EOL, $imports) . PHP_EOL;
+            $content .= PHP_EOL;
         }
 
         $classes = array_map(function($item) {
@@ -124,7 +125,16 @@ class Php5Target implements TargetInterface
 
     protected function generateClass(MessageDefinition $definition)
     {
-        $content  = 'class ' . $definition->getName() . PHP_EOL;
+        $content  = 'class ' . $definition->getName();
+
+        $implements = $definition->getImplementsName();
+
+        if (!empty($implements)) {
+            $content .= ' implements ' . $implements;
+        }
+
+        $content .= PHP_EOL;
+
         $content .= '{' . PHP_EOL;
 
         $properties = array_map(function($item) {

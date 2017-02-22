@@ -131,7 +131,15 @@ class Ts2Target implements TargetInterface
 
     protected function generateClass(MessageDefinition $definition)
     {
-        $content  = '    export class ' . $definition->getName() . ' {'. PHP_EOL;
+        $content  = '    export class ' . $definition->getName();
+
+        $implements = $definition->getImplementsName();
+
+        if (!empty($implements)) {
+            $content .= ' implements ' . $implements;
+        }
+
+        $content .= ' {'. PHP_EOL;
 
         $properties = array_map(function($item) {
             return $this->generateProperty($item);

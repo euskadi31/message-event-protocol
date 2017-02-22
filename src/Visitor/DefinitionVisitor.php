@@ -68,6 +68,9 @@ class DefinitionVisitor implements Visit
 
                 $handle->addClass($definition);
                 break;
+            case '#implements':
+                $element->getChild(0)->accept($this, $handle, $eldnah);
+                break;
             case '#interface':
                 $definition = new Definition\InterfaceDefinition();
 
@@ -127,6 +130,9 @@ class DefinitionVisitor implements Visit
                         break;
                     case 'property_name_t':
                         $handle->setName($element->getValueValue());
+                        break;
+                    case 'implements_name_t':
+                        $handle->setImplementsName($element->getValueValue());
                         break;
                     default:
                         # code...
