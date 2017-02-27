@@ -7,7 +7,7 @@ if ($argc != 2) {
     exit(1);
 }
 
-$compiler = Hoa\Compiler\Llk\Llk::load(new Hoa\File\Read(__DIR__ . '/MessageEventProtocol.pp'));
+$compiler = Hoa\Compiler\Llk\Llk::load(new Hoa\File\Read(__DIR__ . '/../src/MessageEventProtocol.pp'));
 
 // 2. Parse a data.
 $ast = $compiler->parse(file_get_contents($argv[1]));

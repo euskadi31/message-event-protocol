@@ -13,33 +13,33 @@
  */
 namespace Euskadi31\MessageEventProtocol\Definition;
 
-class MessageDefinition extends ClassDefinition
+class OptionDefinition
 {
-    protected $implements;
-    protected $extend;
+    protected $name;
 
-    public function setImplementsName($name)
+    protected $value;
+
+    public function setName($name)
     {
-        $this->implements = $name;
+        $this->name = $name;
 
         return $this;
     }
 
-    public function getImplementsName()
+    public function getName()
     {
-        return $this->implements;
+        return $this->name;
     }
 
-    public function setExtend($name)
+    public function setValue($value)
     {
-        $this->extend = $name;
+        $this->value = $value;
 
         return $this;
     }
 
-    public function getExtend()
+    public function getValue()
     {
-        return $this->extend;
+        return $this->value;
     }
-
 }

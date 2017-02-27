@@ -1,8 +1,12 @@
 package Acme\Event;
 
+option java_package = "tv.molotov.events";
+option go_package = "github.com/molotovtv/go-event-model/";
+
 import Acme\Event\PayloadData;
 
 message PageView implements PayloadData {
+    @Type("string")
     required String url;
 }
 

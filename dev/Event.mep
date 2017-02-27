@@ -1,0 +1,44 @@
+package Molotov\Event;
+
+option java_package = "tv.molotov.event";
+option go_package = "github.com/molotovtv/go-event-model/";
+option go_extends = "no";
+option php_serializer = "native";
+
+message User {
+    required Integer id;
+    required String email;
+    optional Integer profileId;
+}
+
+message Agent {
+    required String type;
+    optional String appId;
+    optional String appName;
+    optional String appVersionName;
+    optional Integer appBuild;
+    optional String os;
+    optional String osVersion;
+    optional String brand;
+    optional String display;
+    optional String manufacturer;
+    optional String model;
+    optional String serial;
+    optional String serialSoftware;
+}
+
+message Context {
+    required User user;
+    required Agent agent;
+}
+
+message Event {
+    required String type;
+    required String action;
+    required Context context;
+    required DateTime createdAt;
+}
+
+message SocialConnectEvent extends Event {
+    required String provider;
+}

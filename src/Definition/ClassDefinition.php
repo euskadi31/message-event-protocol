@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of the message-event-protocol.
  *
  * (c) Axel Etcheverry
@@ -38,8 +38,32 @@ class ClassDefinition
         return $this;
     }
 
+    public function hasProperty($name)
+    {
+        foreach ($this->properties as $property) {
+            if ($property->getName() == $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getProperties()
     {
         return $this->properties;
+    }
+
+    public function merge(ClassDefinition $other)
+    {
+        $properties = [];
+
+        foreach ($other->getProperties() as $property) {
+            if (!$this->hasProperty($property->getName())) {
+                $properties[] = $property;
+            }
+        }
+
+        $this->properties = array_merge($properties, $this->properties);
     }
 }

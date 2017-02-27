@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of the message-event-protocol.
  *
  * (c) Axel Etcheverry
@@ -48,8 +48,10 @@ class DefinitionVisitor implements Visit
                 foreach ($element->getChildren() as $e => $child) {
                     $child->accept($this, $handle, $eldnah);
                 }
+                break;
             case '#package':
                 $element->getChild(0)->accept($this, $handle, $eldnah);
+                break;
             case '#import':
                 $element->getChild(0)->accept($this, $handle, $eldnah);
                 break;
@@ -71,6 +73,9 @@ class DefinitionVisitor implements Visit
             case '#implements':
                 $element->getChild(0)->accept($this, $handle, $eldnah);
                 break;
+            case '#extend':
+                $element->getChild(0)->accept($this, $handle, $eldnah);
+                break;
             case '#interface':
                 $definition = new Definition\InterfaceDefinition();
 
@@ -89,25 +94,23 @@ class DefinitionVisitor implements Visit
             case '#property':
                 $definition = new Definition\PropertyDefinition();
 
-                 foreach ($element->getChildren() as $e => $child) {
+                foreach ($element->getChildren() as $e => $child) {
                     $child->accept($this, $definition, $eldnah);
                 }
 
                 $handle->addProperty($definition);
+                break;
+            case '#options':
+                $definition = new Definition\OptionDefinition();
 
-                /*
-                $element->getChild(0)->accept($this, $definition, $eldnah)
-                $element->getChild(1)->accept($this, $definition, $eldnah)
-                $element->getChild(2)->accept($this, $definition, $eldnah)
-                */
-                /*return sprintf(
-                    '    private $%s;',
-                    $element->getChild(2)->accept($this, $handle, $eldnah)
-                ) . PHP_EOL;
-                */
+                foreach ($element->getChildren() as $e => $child) {
+                    $child->accept($this, $definition, $eldnah);
+                }
+
+                $handle->addOption($definition);
                 break;
             case 'token':
-                //var_dump($element->getValueToken());
+                // var_dump($element->getValueToken());
 
                 switch ($element->getValueToken()) {
                     case 'package_name_t':
@@ -133,6 +136,15 @@ class DefinitionVisitor implements Visit
                         break;
                     case 'implements_name_t':
                         $handle->setImplementsName($element->getValueValue());
+                        break;
+                    case 'extend_name_t':
+                        $handle->setExtend($element->getValueValue());
+                        break;
+                    case 'option_name_t':
+                        $handle->setName($element->getValueValue());
+                        break;
+                    case 'string_t':
+                        $handle->setValue($element->getValueValue());
                         break;
                     default:
                         # code...

@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of the message-event-protocol.
  *
  * (c) Axel Etcheverry
@@ -26,6 +26,8 @@ class FileDefinition
     protected $imports = [];
 
     protected $classes = [];
+
+    protected $options = [];
 
     public function setSrcFile(SplFileInfo $src)
     {
@@ -85,5 +87,31 @@ class FileDefinition
     public function getClasses()
     {
         return $this->classes;
+    }
+
+    public function addOption(OptionDefinition $option)
+    {
+        $this->options[$option->getName()] = $option->getValue();
+
+        return $this;
+    }
+
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    public function hasOption($name)
+    {
+        return isset($this->options[$name]);
+    }
+
+    public function getOption($name, $default = null)
+    {
+        if ($this->hasOption($name)) {
+            return $this->options[$name];
+        }
+
+        return $default;
     }
 }
