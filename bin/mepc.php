@@ -5,6 +5,7 @@ use Hoa\Dispatcher;
 use Hoa\Exception;
 use Hoa\Router;
 
+
 /**
  * @copyright  Copyright © 2007-2016 Hoa community
  */
@@ -32,18 +33,60 @@ if (!defined('HOA')) {
         }
     }
 
-    if (!defined('HOA')) {
-        require_once
-            dirname(__DIR__) . DIRECTORY_SEPARATOR .
-            '..' . DIRECTORY_SEPARATOR .
-            'Consistency' . DIRECTORY_SEPARATOR .
-            'Prelude.php';
 
-        require_once
+    if (!defined('HOA')) {
+
+        $files = [
             dirname(__DIR__) . DIRECTORY_SEPARATOR .
             '..' . DIRECTORY_SEPARATOR .
-            'Protocol' . DIRECTORY_SEPARATOR .
-            'Wrapper.php';
+            'vendor' . DIRECTORY_SEPARATOR .
+            'hoa' . DIRECTORY_SEPARATOR .
+            'consistency' . DIRECTORY_SEPARATOR .
+            'Prelude.php',
+            dirname(__DIR__) . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            'vendor' . DIRECTORY_SEPARATOR .
+            'hoa' . DIRECTORY_SEPARATOR .
+            'consistency' . DIRECTORY_SEPARATOR .
+            'Prelude.php',
+            dirname(__DIR__) . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            'vendor' . DIRECTORY_SEPARATOR .
+            'hoa' . DIRECTORY_SEPARATOR .
+            'consistency' . DIRECTORY_SEPARATOR .
+            'Prelude.php',
+
+            dirname(__DIR__) . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            'vendor' . DIRECTORY_SEPARATOR .
+            'hoa' . DIRECTORY_SEPARATOR .
+            'protocol' . DIRECTORY_SEPARATOR .
+            'Wrapper.php',
+            dirname(__DIR__) . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            'vendor' . DIRECTORY_SEPARATOR .
+            'hoa' . DIRECTORY_SEPARATOR .
+            'protocol' . DIRECTORY_SEPARATOR .
+            'Wrapper.php',
+            dirname(__DIR__) . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            'vendor' . DIRECTORY_SEPARATOR .
+            'hoa' . DIRECTORY_SEPARATOR .
+            'protocol' . DIRECTORY_SEPARATOR .
+            'Wrapper.php'
+        ];
+
+        foreach ($files as $path) {
+            if (file_exists($path)) {
+                require_once $path;
+            }
+        }
     }
 }
 

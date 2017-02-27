@@ -3,3 +3,5 @@ out/
 composer.phar
 .DS_Store
 .idea/
+box.phar
+mepc.phar

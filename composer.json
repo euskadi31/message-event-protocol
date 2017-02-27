@@ -3,8 +3,12 @@
     "type": "library",
     "require": {
         "hoa/compiler": "3.16.08.15",
-        "hoa/cli": "^2.16",
-        "zendframework/zend-code": "^3.1"
+        "hoa/cli": "^2.16"
+    },
+    "require-dev": {
+        "symfony/process": "~2.3",
+        "symfony/finder": "~2.3",
+        "kherge/box": "^2.7"
     },
     "license": "MIT",
     "authors": [
@@ -12,6 +16,9 @@
             "name": "Axel Etcheverry",
             "email": "axel@etcheverry.biz"
         }
+    ],
+    "bin": [
+        "bin/mepc"
     ],
     "autoload": {
         "psr-4": {

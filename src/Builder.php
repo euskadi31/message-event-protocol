@@ -27,7 +27,7 @@ class Builder
     {
         $this->output = $output;
 
-        $className = sprintf('Euskadi31\MessageEventProtocol\Target\\%sTarget', $target);
+        $className = sprintf('Euskadi31\MessageEventProtocol\Target\\%sTarget', ucfirst($target));
 
         if (!class_exists($className)) {
             throw new InvalidArgumentException(sprintf('Invalid Target "%s".', $target));

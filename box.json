@@ -1,0 +1,32 @@
+{
+    "chmod": "0755",
+    "directories": [
+        "src"
+    ],
+    "files": [
+        "LICENSE.md"
+    ],
+    "finder": [
+        {
+            "name": [
+                "*.php",
+                "*.pp"
+            ],
+            "exclude": [
+                "Tests",
+                "tests",
+                "Test.Unit",
+                "sebastian",
+                "phpunit",
+                "phpspec",
+                "process",
+                "filesystem"
+            ],
+            "in": "vendor"
+        }
+    ],
+    "compactors": "Herrera\\Box\\Compactor\\Php",
+    "main": "bin/mepc.php",
+    "output": "mepc.phar",
+    "stub": true
+}
