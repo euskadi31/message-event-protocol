@@ -26,7 +26,8 @@ class GoTarget implements TargetInterface
         'Boolean' => 'boolean',
         'Integer' => 'int',
         'Float' => 'float64',
-        'DateTime' => 'time.Time'
+        'DateTime' => 'time.Time',
+        'Any' => 'interface{}'
     ];
 
     protected $imports = [

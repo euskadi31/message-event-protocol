@@ -27,7 +27,8 @@ class Php5Target implements TargetInterface
         'Bool',
         'Integer',
         'Float',
-        'DateTime'
+        'DateTime',
+        'Any'
     ];
 
     protected $filename;

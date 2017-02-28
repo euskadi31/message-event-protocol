@@ -36,9 +36,6 @@ message Event {
     required String type;
     required String action;
     required Context context;
+    required Any payload;
     required DateTime createdAt;
-}
-
-message SocialConnectEvent extends Event {
-    required String provider;
 }
