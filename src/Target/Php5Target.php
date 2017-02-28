@@ -28,6 +28,7 @@ class Php5Target implements TargetInterface
         'Integer',
         'Float',
         'DateTime',
+        'Date',
         'Any'
     ];
 
@@ -121,7 +122,13 @@ class Php5Target implements TargetInterface
         $type = '';
 
         if (!in_array($definition->getType(), $this->genericTypes)) {
-            $type = $definition->getType(). ' ';
+            $type = $definition->getType() . ' ';
+        }
+
+        if ($definition->getType() == 'DateTime') {
+            $type = '\DateTime ';
+        } elseif ($definition->getType() == 'Date') {
+            $type = '\DateTime ';
         }
 
         return $type . '$' . $definition->getName();
@@ -218,6 +225,8 @@ class Php5Target implements TargetInterface
 
             if ($property->getType() == 'DateTime') {
                 $ref = sprintf('(empty($this->%s)) ? null : $this->%s->format(\DateTime::ISO8601)', $property->getName(), $property->getName());
+            } elseif ($property->getType() == 'Date') {
+                $ref = sprintf('(empty($this->%s)) ? null : $this->%s->format(\'Y-m-d\')', $property->getName(), $property->getName());
             }
 
             return sprintf('            \'%s\' => %s', $naming->toSnakeCase(), $ref);

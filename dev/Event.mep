@@ -39,3 +39,7 @@ message Event {
     required Any payload;
     required DateTime createdAt;
 }
+
+message SocialConnect {
+    required Date birstday;
+}
