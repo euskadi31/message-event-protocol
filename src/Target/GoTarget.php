@@ -32,7 +32,8 @@ class GoTarget implements TargetInterface
     ];
 
     protected $imports = [
-        'DateTime' => 'time'
+        'DateTime' => 'time',
+        'Any' => 'encoding/json'
     ];
 
     protected $filename;
@@ -240,10 +241,6 @@ EOF;
             $type = $this->genericTypes[$type];
         }
 
-        /*if ($type != 'interface{}') {
-            $type = '*' . $type;
-        }*/
-
         $naming = new NamingPolicy($definition->getName());
 
         $content  = str_repeat(' ', 4) . $naming->toCamelCase(true) . ' ' . $type;
@@ -281,7 +278,47 @@ EOF;
 
         $content .= '}';
 
+        $methods = $this->generateMethods($definition);
+
+        if (!empty($methods)) {
+            $content .= PHP_EOL;
+            $content .= PHP_EOL;
+
+            $content .= $methods;
+        }
+
         return $content;
+    }
+
+    protected  function generateMethods(MessageDefinition $definition)
+    {
+        $name = $definition->getName();
+        $self = strtolower($name[0]);
+
+        $methods = array_filter(array_map(function($property) use ($self, $name) {
+            if ($property->getType() == 'Any') {
+                $naming = new NamingPolicy($property->getName());
+
+                $content  = sprintf('func (%s %s) Decode%s(v interface{}) error {', $self, $name, $naming->toCamelCase(true)) . PHP_EOL;
+                $content .= sprintf('    b, err := json.Marshal(e.%s)', $naming->toCamelCase(true)) . PHP_EOL;
+                $content .= '    if err != nil {' . PHP_EOL;
+                $content .= '        return err' . PHP_EOL;
+                $content .= '    }' . PHP_EOL;
+                $content .= PHP_EOL;
+                $content .= '    if err := json.Unmarshal(b, v); err != nil {' . PHP_EOL;
+                $content .= '        return err' . PHP_EOL;
+                $content .= '    }' . PHP_EOL;
+                $content .= PHP_EOL;
+                $content .= '    return nil' . PHP_EOL;
+                $content .= '}' . PHP_EOL;
+
+                return $content;
+            }
+
+            return null;
+        }, $definition->getProperties()));
+
+        return implode(PHP_EOL, $methods);
     }
 
     protected function generateInterface(InterfaceDefinition $definition)
