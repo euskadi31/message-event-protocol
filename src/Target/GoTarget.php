@@ -26,7 +26,8 @@ class GoTarget implements TargetInterface
         'Boolean' => 'boolean',
         'Integer' => 'int',
         'Float' => 'float64',
-        'DateTime' => 'time.Time',
+        'DateTime' => '*DateTime',
+        'Date' => '*Date',
         'Any' => 'interface{}'
     ];
 
@@ -48,6 +49,117 @@ class GoTarget implements TargetInterface
         return $this->filename;
     }
 
+    public function getLibrary()
+    {
+        return <<<EOF
+// ISO8601 format
+const dateTimeFormat = "2006-01-02T15:04:05-0700"
+
+// DateTime represents a date ISO-8601
+type DateTime struct {
+	time.Time
+}
+
+// MarshalText implement the json.Marshaler interface
+func (t DateTime) MarshalText() ([]byte, error) {
+	return []byte(t.Format(dateTimeFormat)), nil
+}
+
+// MarshalJSON implement the json.Marshaler interface
+func (t DateTime) MarshalJSON() ([]byte, error) {
+	b, err := t.MarshalText()
+	if err != nil {
+		return b, err
+	}
+
+	dt := []byte{}
+	dt = append(dt, 0x22) // 0x22 => "
+	dt = append(dt, b...)
+	dt = append(dt, 0x22) // 0x22 => "
+
+	return dt, nil
+}
+
+// UnmarshalJSON allows ISO8601Time to implement the json.Unmarshaler interface
+func (t *DateTime) UnmarshalJSON(b []byte) error {
+	if b[0] == '"' && b[len(b)-1] == '"' {
+		b = b[1 : len(b)-1]
+	}
+
+	return t.UnmarshalText(b)
+}
+
+// UnmarshalText allows ISO8601Time to implement the TextUnmarshaler interface
+func (t *DateTime) UnmarshalText(b []byte) error {
+	var err error
+
+	if string(b) == "null" {
+		t.Time = time.Time{}
+
+		return nil
+	}
+
+	t.Time, err = time.Parse(dateTimeFormat, string(b))
+
+	return err
+}
+
+// ISO8601 format
+const dateFormat = "2006-01-02"
+
+// Date represents a date ISO-8601
+type Date struct {
+	time.Time
+}
+
+// MarshalText implement the json.Marshaler interface
+func (t Date) MarshalText() ([]byte, error) {
+	return []byte(t.Format(dateFormat)), nil
+}
+
+// MarshalJSON implement the json.Marshaler interface
+func (t Date) MarshalJSON() ([]byte, error) {
+	b, err := t.MarshalText()
+	if err != nil {
+		return b, err
+	}
+
+	dt := []byte{}
+	dt = append(dt, 0x22) // 0x22 => "
+	dt = append(dt, b...)
+	dt = append(dt, 0x22) // 0x22 => "
+
+	return dt, nil
+}
+
+// UnmarshalJSON allows ISO8601Time to implement the json.Unmarshaler interface
+func (t *Date) UnmarshalJSON(b []byte) error {
+	if b[0] == '"' && b[len(b)-1] == '"' {
+		b = b[1 : len(b)-1]
+	}
+
+	return t.UnmarshalText(b)
+}
+
+// UnmarshalText allows ISO8601Time to implement the TextUnmarshaler interface
+func (t *Date) UnmarshalText(b []byte) error {
+	var err error
+
+	if string(b) == "null" {
+		t.Time = time.Time{}
+
+		return nil
+	}
+
+	t.Time, err = time.Parse(dateFormat, string(b))
+
+	return err
+}
+        
+EOF;
+
+    }
+
     public function generate(FileDefinition $definition)
     {
         $this->def = $definition;
@@ -63,22 +175,32 @@ class GoTarget implements TargetInterface
         $content .= 'package ' . $package[count($package)-1] . PHP_EOL;
         $content .= PHP_EOL;
 
-        $imports = [];
+        $imports = [
+            'time'
+        ];
 
         foreach ($definition->getClasses() as $class) {
-            $imports = array_merge($imports, array_unique(array_filter(array_map(function($property) {
+            $imports = array_unique(array_merge($imports, array_filter(array_map(function($property) {
                 if (isset($this->imports[$property->getType()])) {
-                    return 'import "' . $this->imports[$property->getType()] . '"';
+                    return $this->imports[$property->getType()];
                 }
 
                 return null;
             }, $class->getProperties()))));
         }
 
+
+        $imports = array_map(function($import) {
+            return 'import "' . $import . '"';
+        }, $imports);
+
+
         if (!empty($imports)) {
             $content .= implode(PHP_EOL, $imports) . PHP_EOL;
             $content .= PHP_EOL;
         }
+
+        $content .= $this->getLibrary() . PHP_EOL;
 
         if ($definition->getOption('go_extends') == 'no') {
             $defClass = [];
@@ -118,9 +240,13 @@ class GoTarget implements TargetInterface
             $type = $this->genericTypes[$type];
         }
 
+        /*if ($type != 'interface{}') {
+            $type = '*' . $type;
+        }*/
+
         $naming = new NamingPolicy($definition->getName());
 
-        $content  = '    ' . $naming->toCamelCase(true) . ' ' . $type;
+        $content  = str_repeat(' ', 4) . $naming->toCamelCase(true) . ' ' . $type;
 
         $content .= ' `json:"' . $naming->toSnakeCase();
 
@@ -128,7 +254,7 @@ class GoTarget implements TargetInterface
             $content .= ',omitempty';
         }
 
-        $content .= '"`' . PHP_EOL;
+        $content .= '"`';
 
         return $content;
     }
@@ -150,7 +276,7 @@ class GoTarget implements TargetInterface
         }, $definition->getProperties());
 
         if (!empty($properties)) {
-            $content .= implode(PHP_EOL, $properties);
+            $content .= implode(PHP_EOL, $properties) . PHP_EOL;
         }
 
         $content .= '}';

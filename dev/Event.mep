@@ -41,5 +41,5 @@ message Event {
 }
 
 message SocialConnect {
-    required Date birstday;
+    required Date birthday;
 }
