@@ -26,8 +26,8 @@ class GoTarget implements TargetInterface
         'Boolean' => 'boolean',
         'Integer' => 'int',
         'Float' => 'float64',
-        'DateTime' => '*DateTime',
-        'Date' => '*Date',
+        'DateTime' => 'DateTime',
+        'Date' => 'Date',
         'Any' => 'interface{}'
     ];
 
@@ -68,6 +68,10 @@ func (t DateTime) MarshalText() ([]byte, error) {
 
 // MarshalJSON implement the json.Marshaler interface
 func (t DateTime) MarshalJSON() ([]byte, error) {
+    if t.IsZero() {
+        return []byte("null"), nil
+    }
+    
 	b, err := t.MarshalText()
 	if err != nil {
 		return b, err
@@ -120,6 +124,10 @@ func (t Date) MarshalText() ([]byte, error) {
 
 // MarshalJSON implement the json.Marshaler interface
 func (t Date) MarshalJSON() ([]byte, error) {
+    if t.IsZero() {
+        return []byte("null"), nil
+    }
+    
 	b, err := t.MarshalText()
 	if err != nil {
 		return b, err
