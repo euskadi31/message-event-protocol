@@ -11,6 +11,17 @@
 %skip   annotation_ns:space             \s+
 %skip   extend_ns:space                 \s+
 
+%token  equal_t                         =
+%token  semicolon_t                     ;
+%token  comma_t                         ,
+%token  brace_open_t                    {
+%token  brace_close_t                   }
+%token  bracket_open_t                  \(
+%token  bracket_close_t                 \)
+%token  less_then_t                     \<
+%token  greater_then_t                  \>
+%token  map_t                           Map
+%token  set_t                           Set
 %token  required_t                      required
 %token  optional_t                      optional
 %token  option_t                        option -> option_ns
@@ -23,26 +34,19 @@
 %token  import_ns:import_name_t         [A-Z][a-zA-Z0-9\\]+ -> default
 %token  comment_start_t                 # -> comment_ns
 %token  comment_ns:string_t             [\w\s]+ -> default
-%token  semicolon_t                     ;
 %token  message_t                       message -> message_ns
 %token  message_ns:message_name_t       [A-Z][a-zA-Z0-9]+ -> default
 %token  interface_t                     interface -> interface_ns
 %token  interface_ns:interface_name_t   [A-Z][a-zA-Z0-9]+ -> default
 %token  extend_t                        extends -> extend_ns
 %token  extend_ns:extend_name_t         [A-Z][a-zA-Z0-9]+ -> default
-%token  brace_open_t                    {
-%token  brace_close_t                   }
 %token  type_t                          [A-Z][a-zA-Z0-9]+
 %token  property_name_t                 [a-z][a-zA-Z0-9]+
-%token  equal_t                         =
 %token  quote_start_t                   " -> string_ns
 %token  string_ns:string_t              [^"]+
 %token  string_ns:quote_end_t           " -> default
 %token  annotation_t                    @ -> annotation_ns
 %token  annotation_ns:annotation_name_t [A-Z][a-zA-Z0-9]+ -> default
-%token  bracket_open_t                  \(
-%token  bracket_close_t                 \)
-
 
 #root:
     ( package() | options() | import() | comment() | message() | interface() ) *
@@ -71,8 +75,17 @@
 #interface:
     ::interface_t:: <interface_name_t> ::brace_open_t:: ( property() ) * ::brace_close_t::
 
+#property_type:
+    <type_t>
+
+#property_map:
+    ::map_t:: ::less_then_t:: <type_t> ::comma_t:: <type_t> ::greater_then_t::
+
+#property_set:
+    ::set_t:: ::less_then_t:: <type_t> ::greater_then_t::
+
 #property:
-   ( annotation() ) * ( <required_t> | <optional_t> ) <type_t> <property_name_t> ::semicolon_t::
+   ( annotation() ) * ( <required_t> | <optional_t> ) ( property_map() | property_set() | property_type() ) <property_name_t> ::semicolon_t::
 
 #annotation:
     ::annotation_t:: ::annotation_name_t:: ::bracket_open_t:: ( ::quote_start_t:: <string_t> ::quote_end_t:: ) ? ::bracket_close_t::

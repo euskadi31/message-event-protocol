@@ -17,6 +17,7 @@ use Euskadi31\MessageEventProtocol\Definition\FileDefinition;
 use Euskadi31\MessageEventProtocol\Definition\MessageDefinition;
 use Euskadi31\MessageEventProtocol\Definition\InterfaceDefinition;
 use Euskadi31\MessageEventProtocol\Definition\PropertyDefinition;
+use Euskadi31\MessageEventProtocol\Definition\TypeDefinition;
 use Euskadi31\MessageEventProtocol\NamingPolicy;
 
 class GoTarget implements TargetInterface
@@ -190,8 +191,8 @@ EOF;
 
         foreach ($definition->getClasses() as $class) {
             $imports = array_unique(array_merge($imports, array_filter(array_map(function($property) {
-                if (isset($this->imports[$property->getType()])) {
-                    return $this->imports[$property->getType()];
+                if (isset($this->imports[$property->getType()->getType()])) {
+                    return $this->imports[$property->getType()->getType()];
                 }
 
                 return null;
@@ -241,13 +242,32 @@ EOF;
         return $content;
     }
 
-    protected function generateProperty(PropertyDefinition $definition)
+    protected function getType($type)
     {
-        $type = $definition->getType();
-
         if (isset($this->genericTypes[$type])) {
             $type = $this->genericTypes[$type];
         }
+
+        return $type;
+    }
+
+    protected function generateType(TypeDefinition $definition)
+    {
+        $type = $definition->getType();
+
+        if ($type == 'Set') {
+            return sprintf('[]%s', $this->getType($definition->getValueType()));
+        } elseif ($type == 'Map') {
+            return sprintf('map[%s]%s', $this->getType($definition->getKeyType()), $this->getType($definition->getValueType()));
+        }
+
+        return $this->getType($type);
+
+    }
+
+    protected function generateProperty(PropertyDefinition $definition)
+    {
+        $type = $this->generateType($definition->getType());
 
         $naming = new NamingPolicy($definition->getName());
 

@@ -38,6 +38,8 @@ Types supported
 * DateTime
 * Date
 * Any
+* Set<T>
+* Map<T, T>
 
 Example
 -------
@@ -91,6 +93,8 @@ message PageViewPayload {
     required String url;
     required String referer;
     required String title;
+    required Set<String> keywords;
+    required Map<String, String> opengraph;
     required Size screen;
     required Size viewport;
     required String encoding;

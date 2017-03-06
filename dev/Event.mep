@@ -42,4 +42,6 @@ message Event {
 
 message SocialConnect {
     optional Date birthday;
+    required Map<String, Any> metadata;
+    required Set<String> tags;
 }

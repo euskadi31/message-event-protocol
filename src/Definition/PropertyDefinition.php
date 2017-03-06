@@ -33,7 +33,7 @@ class PropertyDefinition
         return $this->required;
     }
 
-    public function setType($type)
+    public function setType(TypeDefinition $type)
     {
         $this->type = $type;
 

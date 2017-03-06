@@ -109,6 +109,35 @@ class DefinitionVisitor implements Visit
 
                 $handle->addOption($definition);
                 break;
+            case '#property_type':
+                $definition = new Definition\TypeDefinition();
+
+                foreach ($element->getChildren() as $e => $child) {
+                    $child->accept($this, $definition, $eldnah);
+                }
+
+                $handle->setType($definition);
+                break;
+            case '#property_set':
+                $definition = new Definition\SetTypeDefinition();
+
+                foreach ($element->getChildren() as $e => $child) {
+                    $child->accept($this, $definition, $eldnah);
+                }
+
+                $handle->setType($definition);
+                break;
+            case '#property_map':
+                $definition = new Definition\MapTypeDefinition();
+
+                foreach ($element->getChildren() as $e => $child) {
+                    $child->accept($this, $definition, $eldnah);
+                }
+
+                //var_dump($definition);
+
+                $handle->setType($definition);
+                break;
             case 'token':
                 // var_dump($element->getValueToken());
 
@@ -129,7 +158,27 @@ class DefinitionVisitor implements Visit
                         $handle->setRequired(true);
                         break;
                     case 'type_t':
-                        $handle->setType($element->getValueValue());
+                        $part = explode('\\', get_class($handle));
+                        $type = array_pop($part);
+
+                        switch ($type) {
+                            case 'TypeDefinition':
+                                $handle->setType($element->getValueValue());
+                                break;
+                            case 'SetTypeDefinition':
+                                $handle->setValueType($element->getValueValue());
+                                break;
+                            case 'MapTypeDefinition':
+                                if (!$handle->hasKeyType()) {
+                                    $handle->setKeyType($element->getValueValue());
+                                }
+
+                                if (!$handle->hasValueType()) {
+                                    $handle->setValueType($element->getValueValue());
+                                }
+                                break;
+                        }
+
                         break;
                     case 'property_name_t':
                         $handle->setName($element->getValueValue());

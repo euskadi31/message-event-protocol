@@ -17,6 +17,7 @@ use Euskadi31\MessageEventProtocol\Definition\FileDefinition;
 use Euskadi31\MessageEventProtocol\Definition\MessageDefinition;
 use Euskadi31\MessageEventProtocol\Definition\InterfaceDefinition;
 use Euskadi31\MessageEventProtocol\Definition\PropertyDefinition;
+use Euskadi31\MessageEventProtocol\Definition\TypeDefinition;
 use Euskadi31\MessageEventProtocol\NamingPolicy;
 
 class Php5Target implements TargetInterface
@@ -105,7 +106,7 @@ class Php5Target implements TargetInterface
             $content .= '    /**' . PHP_EOL;
             $content .= '     * @SerializedName("' . $naming->toSnakeCase() . '")' . PHP_EOL;
 
-            if ($definition->getType() == 'DateTime') {
+            if ($definition->getType()->getType() == 'DateTime') {
                 $content .= '     * @Type("DateTime<Y-m-d\TH:i:sO>")' . PHP_EOL;
             }
 
@@ -117,9 +118,15 @@ class Php5Target implements TargetInterface
         return $content;
     }
 
-    protected function generateParameter(PropertyDefinition $definition)
+    protected  function generateType(TypeDefinition $definition)
     {
         $type = '';
+
+        //var_dump($definition->getType());
+
+        if ($definition->getType() == 'Map' || $definition->getType() == 'Set') {
+            return 'array ';
+        }
 
         if (!in_array($definition->getType(), $this->genericTypes)) {
             $type = $definition->getType() . ' ';
@@ -130,6 +137,13 @@ class Php5Target implements TargetInterface
         } elseif ($definition->getType() == 'Date') {
             $type = '\DateTime ';
         }
+
+        return $type;
+    }
+
+    protected function generateParameter(PropertyDefinition $definition)
+    {
+        $type = $this->generateType($definition->getType());
 
         return $type . '$' . $definition->getName();
     }
