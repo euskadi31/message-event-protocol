@@ -31,15 +31,15 @@ Generate Go file:
 Types supported
 ---------------
 
-* String
-* Boolean
-* Integer
-* Float
-* DateTime
-* Date
-* Any
-* Set<T>
-* Map<T, T>
+* `String`
+* `Boolean`
+* `Integer`
+* `Float`
+* `DateTime`
+* `Date`
+* `Any`
+* `Set<T>`
+* `Map<T, T>`
 
 Example
 -------
