@@ -72,7 +72,7 @@ func (t DateTime) MarshalJSON() ([]byte, error) {
     if t.IsZero() {
         return []byte("null"), nil
     }
-    
+
 	b, err := t.MarshalText()
 	if err != nil {
 		return b, err
@@ -128,7 +128,7 @@ func (t Date) MarshalJSON() ([]byte, error) {
     if t.IsZero() {
         return []byte("null"), nil
     }
-    
+
 	b, err := t.MarshalText()
 	if err != nil {
 		return b, err
@@ -165,7 +165,7 @@ func (t *Date) UnmarshalText(b []byte) error {
 
 	return err
 }
-        
+
 EOF;
 
     }
@@ -324,7 +324,7 @@ EOF;
         $self = strtolower($name[0]);
 
         $methods = array_filter(array_map(function($property) use ($self, $name) {
-            if ($property->getType() == 'Any') {
+            if ($property->getType()->getType() == 'Any') {
                 $naming = new NamingPolicy($property->getName());
 
                 $content  = sprintf('func (%s %s) Decode%s(v interface{}) error {', $self, $name, $naming->toCamelCase(true)) . PHP_EOL;

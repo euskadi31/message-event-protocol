@@ -118,7 +118,7 @@ class Php5Target implements TargetInterface
         return $content;
     }
 
-    protected  function generateType(TypeDefinition $definition)
+    protected function generateType(TypeDefinition $definition)
     {
         $type = '';
 
@@ -230,23 +230,23 @@ class Php5Target implements TargetInterface
         return $content;
     }
 
-    protected  function  generateSerializeMethod(MessageDefinition $definition)
+    protected function generateSerializeMethod(MessageDefinition $definition)
     {
         $fields = array_map(function($property) {
             $naming = new NamingPolicy($property->getName());
 
             $ref = sprintf('$this->%s', $property->getName());
 
-            if ($property->getType() == 'DateTime') {
+            $type = $property->getType()->getType();
+
+            if ($type == 'DateTime') {
                 $ref = sprintf('(empty($this->%s)) ? null : $this->%s->format(\DateTime::ISO8601)', $property->getName(), $property->getName());
-            } elseif ($property->getType() == 'Date') {
+            } elseif ($type == 'Date') {
                 $ref = sprintf('(empty($this->%s)) ? null : $this->%s->format(\'Y-m-d\')', $property->getName(), $property->getName());
             }
 
             return sprintf('            \'%s\' => %s', $naming->toSnakeCase(), $ref);
         }, $definition->getProperties());
-
-
 
         $content  = '    public function jsonSerialize()' . PHP_EOL;
         $content .= '    {' . PHP_EOL;
