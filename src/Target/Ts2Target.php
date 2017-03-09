@@ -17,6 +17,8 @@ use Euskadi31\MessageEventProtocol\Definition\FileDefinition;
 use Euskadi31\MessageEventProtocol\Definition\MessageDefinition;
 use Euskadi31\MessageEventProtocol\Definition\InterfaceDefinition;
 use Euskadi31\MessageEventProtocol\Definition\PropertyDefinition;
+use Euskadi31\MessageEventProtocol\Definition\TypeDefinition;
+use Euskadi31\MessageEventProtocol\NamingPolicy;
 
 class Ts2Target implements TargetInterface
 {
@@ -24,7 +26,9 @@ class Ts2Target implements TargetInterface
         'String' => 'string',
         'Boolean' => 'boolean',
         'Integer' => 'number',
-        'Float' => 'number'
+        'Float' => 'number',
+        'DateTime' => 'Date',
+        'Any' => 'any'
     ];
 
     protected $filename;
@@ -37,6 +41,36 @@ class Ts2Target implements TargetInterface
     public function getFilename()
     {
         return $this->filename;
+    }
+
+    public function getLibrary()
+    {
+        return <<<EOF
+    function pad(value: number): string {
+        if (value < 10) {
+            return `0\${value}`;
+        }
+
+        return `\${value}`;
+    }
+
+    function formatDate(date: Date): string {
+        return date.getUTCFullYear() +
+            '-' + pad(date.getUTCMonth() + 1) +
+            '-' + pad(date.getUTCDate());
+    }
+
+    function formatDateTime(date: Date): string {
+        return date.getUTCFullYear() +
+            '-' + pad(date.getUTCMonth() + 1 ) +
+            '-' + pad(date.getUTCDate()) +
+            'T' + pad(date.getUTCHours()) +
+            ':' + pad(date.getUTCMinutes()) +
+            ':' + pad(date.getUTCSeconds()) +
+            '+0000';
+    }
+EOF;
+
     }
 
     public function generate(FileDefinition $definition)
@@ -62,6 +96,8 @@ class Ts2Target implements TargetInterface
         $content .= 'namespace ' . str_replace('\\', '.', $definition->getPackage()) . ' {' . PHP_EOL;
         $content .= PHP_EOL;
 
+        $content .= $this->getLibrary() . PHP_EOL;
+
         $classes = array_map(function($item) {
             if ($item instanceof MessageDefinition) {
                 return $this->generateClass($item);
@@ -81,27 +117,42 @@ class Ts2Target implements TargetInterface
 
     protected function generateProperty(PropertyDefinition $definition)
     {
-        return '        private ' . $definition->getName() . $this->getType($definition) . ';';
+        return '        private ' . $this->generateParameter($definition) . ';';
     }
 
-    protected function getType(PropertyDefinition $definition)
+    protected function getType($type)
     {
-        $type = $definition->getType();
-
         if (isset($this->genericTypes[$type])) {
             $type = $this->genericTypes[$type];
         }
 
-        if (!$definition->isRequired()) {
-            return '?: ' . $type;
-        } else {
-            return ': ' . $type;
+        return $type;
+    }
+
+    protected function generateType(TypeDefinition $definition)
+    {
+        $type = $definition->getType();
+
+        if ($type == 'Set') {
+            return sprintf('%s[]', $this->getType($definition->getValueType()));
+        } elseif ($type == 'Map') {
+            return sprintf('{ [key: %s]: %s }', $this->getType($definition->getKeyType()), $this->getType($definition->getValueType()));
         }
+
+        return $this->getType($type);
     }
 
     protected function generateParameter(PropertyDefinition $definition)
     {
-        return $definition->getName() . $this->getType($definition);
+        $content = $definition->getName();
+
+        if (!$definition->isRequired()) {
+            $content .= '?';
+        }
+
+        $content .= ': ' . $this->generateType($definition->getType());
+
+        return $content;
     }
 
     protected function generateMethod(MessageDefinition $messageDef, PropertyDefinition $propertyDef)
@@ -114,7 +165,7 @@ class Ts2Target implements TargetInterface
         $content .= '            return this;' . PHP_EOL;
         $content .= '        }' . PHP_EOL;
         $content .= PHP_EOL;
-        $content .= '        public get' . $name . '()' . $this->getType($propertyDef) . ' {' . PHP_EOL;
+        $content .= '        public get' . $name . '(): ' . $this->generateType($propertyDef->getType()) . ' {' . PHP_EOL;
         $content .= '            return this.' . $propertyDef->getName() . ';' . PHP_EOL;
         $content .= '        }';
 
@@ -161,7 +212,42 @@ class Ts2Target implements TargetInterface
             $content .= implode(PHP_EOL . PHP_EOL, $methods) . PHP_EOL;
         }
 
-        $content .= '    }';
+        $content .= PHP_EOL;
+
+        $content .= $this->generateSerializeMethod($definition);
+
+        $content .= '    }' . PHP_EOL;
+
+        return $content;
+    }
+
+    protected function generateSerializeMethod(MessageDefinition $definition)
+    {
+        $fields = array_map(function($property) {
+            $naming = new NamingPolicy($property->getName());
+
+            $ref = sprintf('this.%s', $property->getName());
+
+            $type = $property->getType()->getType();
+
+            if ($type == 'DateTime') {
+                $ref = sprintf('formatDateTime(%s)', $ref);
+            } elseif ($type == 'Date') {
+                $ref = sprintf('formatDate(%s)', $ref);
+            }
+
+            return sprintf('                \'%s\': %s', $naming->toSnakeCase(), $ref);
+        }, $definition->getProperties());
+
+        $content  = '        public toJSON(): { [key: string]: any } {' . PHP_EOL;
+
+        $content .= '            return {' . PHP_EOL;
+
+        $content .= implode(',' . PHP_EOL, $fields) . PHP_EOL;
+
+        $content .= '            };' . PHP_EOL;
+
+        $content .= '        }' . PHP_EOL;
 
         return $content;
     }
