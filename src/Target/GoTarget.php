@@ -24,7 +24,7 @@ class GoTarget implements TargetInterface
 {
     protected $genericTypes = [
         'String' => 'string',
-        'Boolean' => 'boolean',
+        'Boolean' => 'bool',
         'Integer' => 'int',
         'Float' => 'float64',
         'DateTime' => 'DateTime',
