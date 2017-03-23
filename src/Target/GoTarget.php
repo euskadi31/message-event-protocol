@@ -246,6 +246,8 @@ EOF;
     {
         if (isset($this->genericTypes[$type])) {
             $type = $this->genericTypes[$type];
+        } else {
+            $type = '*' . $type;
         }
 
         return $type;
